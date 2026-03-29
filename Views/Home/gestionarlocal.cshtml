@@ -1,0 +1,1857 @@
+@{
+    ViewData["Title"] = "Sistema de Gestión - Todo a 10.000";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px 15px 0 0;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e9ecef;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @@media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required::after {
+            content: " *";
+            color: #f44336;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(244, 67, 54, 0.4);
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .card-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .card-badge.activo {
+            background: #4CAF50;
+        }
+
+        .card-badge.inactivo {
+            background: #f44336;
+        }
+
+        .card-badge.cajero {
+            background: #2196F3;
+        }
+
+        .card-badge.administrador {
+            background: #FF9800;
+        }
+
+        .card-info {
+            margin-bottom: 10px;
+        }
+
+        .card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .card-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .stock-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #f8f9fa url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 15px center;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            color: #333;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border: 1px solid #4CAF50;
+            color: #2e7d32;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 SISTEMA DE GESTIÓN TODO A 10.000</h1>
+            <h2>Administración de Locales y Personal</h2>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">
+                📊 Dashboard
+            </button>
+            <button class="tab" onclick="switchTab('add-usuario')">
+                👨‍💼 Agregar Usuario
+            </button>
+            <button class="tab" onclick="switchTab('add-local')">
+                🏪 Agregar Local
+            </button>
+            <button class="tab" onclick="switchTab('manage-locals')">
+                📋 Gestionar Locales
+            </button>
+            <button class="tab" onclick="switchTab('manage-usuarios')">
+                👥 Gestionar Usuarios
+            </button>
+            <button class="tab" onclick="switchTab('inventario')">
+                📦 Inventario Diario
+            </button>
+        </div>
+
+        <div class="content-area">
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content active">
+                <h2 class="section-title">Resumen del Sistema</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalLocals">0</div>
+                        <div class="stat-label">Locales Registrados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsuarios">0</div>
+                        <div class="stat-label">Usuarios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalInventario">0</div>
+                        <div class="stat-label">Total Inventario Hoy</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agregar Usuario -->
+            <div id="add-usuario" class="tab-content">
+                <h2 class="section-title">Registrar Nuevo Usuario</h2>
+                
+                <div class="alert" id="usuarioAlert"></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="usuarioNombre" class="required">Nombres</label>
+                        <input type="text" id="usuarioNombre" placeholder="Ej: Juan Carlos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioApellido" class="required">Apellidos</label>
+                        <input type="text" id="usuarioApellido" placeholder="Ej: Pérez Rodríguez" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioTelefono">Teléfono</label>
+                        <input type="tel" id="usuarioTelefono" placeholder="Ej: 3001234567" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioDireccion">Dirección Residencia</label>
+                        <input type="text" id="usuarioDireccion" placeholder="Ej: Calle 123 #45-67" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioCargo" class="required">Cargo</label>
+                        <select id="usuarioCargo" required>
+                            <option value="">Seleccionar cargo...</option>
+                            <option value="CAJERO">Cajero</option>
+                            <option value="ADMINISTRADOR">Administrador</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioUser" class="required">Usuario (Login)</label>
+                        <input type="text" id="usuarioUser" placeholder="Ej: jperez" maxlength="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioPassword" class="required">Contraseña</label>
+                        <input type="password" id="usuarioPassword" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="usuarioLocalId" class="required">Local Asignado</label>
+                        <select id="usuarioLocalId" required>
+                            <option value="">Seleccione un local</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveUsuario()">
+                        💾 Guardar Usuario
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearUsuarioForm()">
+                        🗑️ Limpiar Formulario
+                    </button>
+                </div>
+            </div>
+
+            <!-- Agregar Local -->
+            <div id="add-local" class="tab-content">
+                <h2 class="section-title">Registrar Nuevo Local</h2>
+                
+                <div class="alert" id="localAlert"></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="localNombre" class="required">Nombre del Local</label>
+                        <input type="text" id="localNombre" placeholder="Ej: Local Norte, Centro Comercial, etc." maxlength="150" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localDireccion" class="required">Dirección</label>
+                        <input type="text" id="localDireccion" placeholder="Ej: Calle 100 #25-30" maxlength="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localCiudad" class="required">Ciudad</label>
+                        <input type="text" id="localCiudad" placeholder="Ej: Bogotá, Medellín, Cali" maxlength="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localTelefono">Teléfono Local</label>
+                        <input type="tel" id="localTelefono" placeholder="Ej: 6012345678" maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="localEstado">Estado</label>
+                        <select id="localEstado">
+                            <option value="ACTIVO">Activo</option>
+                            <option value="INACTIVO">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveLocal()">
+                        🏪 Guardar Local
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearLocalForm()">
+                        🗑️ Limpiar Formulario
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gestionar Locales -->
+            <div id="manage-locals" class="tab-content">
+                <h2 class="section-title">Locales Registrados</h2>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchLocals" 
+                           placeholder="Buscar local por nombre, dirección o ciudad..." 
+                           onkeyup="searchLocals()">
+                </div>
+                
+                <div class="cards-container" id="localsContainer">
+                    <!-- Los locales aparecerán aquí -->
+                </div>
+            </div>
+
+            <!-- Gestionar Usuarios -->
+            <div id="manage-usuarios" class="tab-content">
+                <h2 class="section-title">Usuarios Registrados</h2>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchUsuarios" 
+                           placeholder="Buscar usuario por nombre, apellido o cargo..." 
+                           onkeyup="searchUsuarios()">
+                </div>
+                
+                <div class="cards-container" id="usuariosContainer">
+                    <!-- Los usuarios aparecerán aquí -->
+                </div>
+            </div>
+
+            <!-- Inventario Diario -->
+            <div id="inventario" class="tab-content">
+                <h2 class="section-title">Registrar Inventario Diario</h2>
+                
+                <div class="alert" id="inventarioAlert"></div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="invLocalId" class="required">Local</label>
+                        <select id="invLocalId" required onchange="loadInventarioAnterior()">
+                            <option value="">Seleccione un local</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="invFecha">Fecha</label>
+                        <input type="date" id="invFecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="invInicial" class="required">Inventario Inicial</label>
+                        <input type="number" id="invInicial" placeholder="0" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="invEntrada">Entrada (Mercancía recibida)</label>
+                        <input type="number" id="invEntrada" placeholder="0" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="invSalida">Salida (Ventas)</label>
+                        <input type="number" id="invSalida" placeholder="0" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="invFinal" class="required">Inventario Final</label>
+                        <input type="number" id="invFinal" placeholder="0" min="0" required readonly>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-success" onclick="saveInventario()">
+                        📦 Guardar Inventario
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearInventarioForm()">
+                        🗑️ Limpiar Formulario
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="detailModalTitle">📋 Detalles</h3>
+            <div id="detailContent"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">✏️ Editar</h3>
+            <div id="editForm"></div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚠️ Confirmar Eliminación</h3>
+            <p id="deleteMessage"></p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Eliminar</button>
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let systemData = {
+            locales: [],
+            usuarios: [],
+            inventario: []
+        };
+
+        // API Base URL
+        const API_BASE_URL = '/api';
+
+        // =====================================================
+        // INICIALIZACIÓN
+        // =====================================================
+        function initSystem() {
+            console.log('Inicializando sistema...');
+            
+            // Establecer fecha actual
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('invFecha').value = today;
+            
+            // Cargar datos desde el servidor
+            loadDataFromServer();
+            
+            // Calcular inventario final automáticamente
+            document.getElementById('invInicial').addEventListener('input', calcularInventarioFinal);
+            document.getElementById('invEntrada').addEventListener('input', calcularInventarioFinal);
+            document.getElementById('invSalida').addEventListener('input', calcularInventarioFinal);
+            
+            // Mostrar solo la pestaña activa al inicio
+            showActiveTabOnly();
+        }
+
+        // Mostrar solo la pestaña activa
+        function showActiveTabOnly() {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                if (!tab.classList.contains('active')) {
+                    tab.style.display = 'none';
+                }
+            });
+        }
+
+        // =====================================================
+        // CARGAR DATOS DESDE EL SERVIDOR
+        // =====================================================
+        async function loadDataFromServer() {
+            try {
+                console.log('Cargando datos desde servidor...');
+                
+                // Cargar locales
+                const localesResponse = await fetch(`${API_BASE_URL}/locales`);
+                if (localesResponse.ok) {
+                    systemData.locales = await localesResponse.json();
+                    console.log('Locales cargados:', systemData.locales.length);
+                } else {
+                    console.error('Error al cargar locales:', localesResponse.status);
+                    showAlert('localAlert', 'Error al cargar los locales', 'error');
+                    return;
+                }
+
+                // Cargar usuarios
+                const usuariosResponse = await fetch(`${API_BASE_URL}/usuarios`);
+                if (usuariosResponse.ok) {
+                    systemData.usuarios = await usuariosResponse.json();
+                    console.log('Usuarios cargados:', systemData.usuarios.length);
+                } else {
+                    console.error('Error al cargar usuarios:', usuariosResponse.status);
+                }
+
+                // Cargar inventario
+                const inventarioResponse = await fetch(`${API_BASE_URL}/inventario`);
+                if (inventarioResponse.ok) {
+                    systemData.inventario = await inventarioResponse.json();
+                    console.log('Inventario cargado:', systemData.inventario.length);
+                } else {
+                    console.error('Error al cargar inventario:', inventarioResponse.status);
+                }
+
+                // Actualizar UI
+                updateDashboard();
+                loadLocalesSelect();
+                renderLocals();
+                renderUsuarios();
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                showAlert('localAlert', 'Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // =====================================================
+        // CAMBIAR ENTRE PESTAÑAS
+        // =====================================================
+        function switchTab(tabId) {
+            console.log('Cambiando a pestaña:', tabId);
+            
+            // Ocultar todos los contenidos de pestañas
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.display = 'none';
+            });
+            
+            // Desactivar todos los botones de pestaña
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar el contenido de la pestaña seleccionada
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+                selectedContent.style.display = 'block';
+            }
+            
+            // Activar el botón de la pestaña seleccionada
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                const onclickValue = button.getAttribute('onclick');
+                if (onclickValue && onclickValue.includes(`'${tabId}'`)) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Realizar acciones específicas según la pestaña
+            switch(tabId) {
+                case 'manage-locals':
+                    renderLocals();
+                    break;
+                case 'manage-usuarios':
+                    renderUsuarios();
+                    break;
+                case 'add-usuario':
+                    clearUsuarioForm();
+                    break;
+                case 'add-local':
+                    clearLocalForm();
+                    break;
+                case 'inventario':
+                    clearInventarioForm();
+                    break;
+            }
+        }
+
+        // =====================================================
+        // GUARDAR LOCAL
+        // =====================================================
+        async function saveLocal() {
+            console.log('Guardando local...');
+            const requiredFields = ['localNombre', 'localDireccion', 'localCiudad'];
+            
+            // Validar campos requeridos
+            for (const field of requiredFields) {
+                const input = document.getElementById(field);
+                const value = input.value.trim();
+                if (!value) {
+                    showAlert('localAlert', `Por favor complete el campo: ${input.previousElementSibling.textContent}`, 'error');
+                    input.focus();
+                    return;
+                }
+            }
+
+            const nuevoLocal = {
+                nombre: document.getElementById('localNombre').value.trim(),
+                direccion: document.getElementById('localDireccion').value.trim(),
+                ciudad: document.getElementById('localCiudad').value.trim(),
+                telefono: document.getElementById('localTelefono').value.trim(),
+                estado: document.getElementById('localEstado').value
+            };
+
+            try {
+                const token = getCsrfToken();
+                
+                const response = await fetch(`${API_BASE_URL}/locales`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(nuevoLocal)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    nuevoLocal.id = data.id;
+                    systemData.locales.push(nuevoLocal);
+                    
+                    showAlert('localAlert', `✅ Local "${nuevoLocal.nombre}" registrado exitosamente`, 'success');
+                    updateDashboard();
+                    loadLocalesSelect();
+                    renderLocals();
+                    
+                    setTimeout(() => {
+                        clearLocalForm();
+                        switchTab('manage-locals');
+                    }, 1500);
+                } else {
+                    const error = await response.json();
+                    showAlert('localAlert', `Error al guardar el local: ${error.error || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('localAlert', 'Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // =====================================================
+        // GUARDAR USUARIO
+        // =====================================================
+        async function saveUsuario() {
+            console.log('Guardando usuario...');
+            const requiredFields = ['usuarioNombre', 'usuarioApellido', 'usuarioCargo', 'usuarioUser', 'usuarioPassword', 'usuarioLocalId'];
+            
+            // Validar campos requeridos
+            for (const field of requiredFields) {
+                const input = document.getElementById(field);
+                const value = input.value.trim();
+                if (!value) {
+                    showAlert('usuarioAlert', `Por favor complete el campo: ${input.previousElementSibling.textContent}`, 'error');
+                    input.focus();
+                    return;
+                }
+            }
+
+            const usuario = document.getElementById('usuarioUser').value.trim();
+            
+            const password = document.getElementById('usuarioPassword').value;
+            if (password.length < 6) {
+                showAlert('usuarioAlert', 'La contraseña debe tener al menos 6 caracteres', 'error');
+                document.getElementById('usuarioPassword').focus();
+                return;
+            }
+
+            const localId = parseInt(document.getElementById('usuarioLocalId').value);
+            const local = systemData.locales.find(l => l.id === localId);
+
+            const nuevoUsuario = {
+                nombre: document.getElementById('usuarioNombre').value.trim(),
+                apellido: document.getElementById('usuarioApellido').value.trim(),
+                telefono: document.getElementById('usuarioTelefono').value.trim(),
+                direccion: document.getElementById('usuarioDireccion').value.trim(),
+                cargo: document.getElementById('usuarioCargo').value,
+                usuario: usuario,
+                contraseña: password,
+                local_id: localId
+            };
+
+            try {
+                const token = getCsrfToken();
+                
+                const response = await fetch(`${API_BASE_URL}/usuarios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(nuevoUsuario)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    nuevoUsuario.id = data.id;
+                    nuevoUsuario.local_nombre = local ? local.nombre : '';
+                    systemData.usuarios.push(nuevoUsuario);
+                    
+                    showAlert('usuarioAlert', `✅ Usuario ${nuevoUsuario.nombre} ${nuevoUsuario.apellido} registrado exitosamente`, 'success');
+                    updateDashboard();
+                    renderUsuarios();
+                    loadLocalesSelect();
+                    
+                    setTimeout(() => {
+                        clearUsuarioForm();
+                        switchTab('manage-usuarios');
+                    }, 1500);
+                } else {
+                    const error = await response.json();
+                    showAlert('usuarioAlert', `Error al guardar el usuario: ${error.error || 'Error desconocido'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('usuarioAlert', 'Error de conexión con el servidor', 'error');
+            }
+        }
+
+        // =====================================================
+        // GUARDAR INVENTARIO
+        // =====================================================
+      async function saveInventario() {
+    console.log('Guardando inventario...');
+
+    const requiredFields = ['invLocalId', 'invFecha', 'invInicial', 'invFinal'];
+
+    // ✅ VALIDACIÓN CORRECTA (ACEPTA 0)
+    for (const field of requiredFields) {
+        const input = document.getElementById(field);
+        const value = input.value;
+
+        if (value === '' || value === null) {
+            showAlert(
+                'inventarioAlert',
+                `Por favor complete el campo: ${input.previousElementSibling.textContent}`,
+                'error'
+            );
+            input.focus();
+            return;
+        }
+    }
+
+    // ✅ OBJETO LIMPIO Y CORRECTO
+    const nuevoInventario = {
+        fecha: document.getElementById('invFecha').value,
+        local_id: Number(document.getElementById('invLocalId').value),
+        inv_inicial: Number(document.getElementById('invInicial').value),
+        entrada: Number(document.getElementById('invEntrada').value) || 0,
+        salida: Number(document.getElementById('invSalida').value) || 0,
+        inv_final: Number(document.getElementById('invFinal').value)
+    };
+
+    // ✅ VALIDACIÓN FINAL
+    if (nuevoInventario.inv_final < 0) {
+        showAlert(
+            'inventarioAlert',
+            'El inventario final no puede ser negativo',
+            'error'
+        );
+        return;
+    }
+
+    try {
+        const token = getCsrfToken();
+
+        const response = await fetch(`${API_BASE_URL}/inventario`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(nuevoInventario)
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            nuevoInventario.id = data.id;
+
+            systemData.inventario.push(nuevoInventario);
+
+            showAlert(
+                'inventarioAlert',
+                '✅ Inventario registrado exitosamente',
+                'success'
+            );
+
+            updateDashboard();
+
+            setTimeout(() => {
+                clearInventarioForm();
+                switchTab('dashboard');
+            }, 1200);
+        } else {
+            const error = await response.json();
+            showAlert(
+                'inventarioAlert',
+                `Error al guardar el inventario: ${error.error || 'Error desconocido'}`,
+                'error'
+            );
+        }
+    } catch (error) {
+        console.error(error);
+        showAlert(
+            'inventarioAlert',
+            '❌ Error de conexión con el servidor',
+            'error'
+        );
+    }
+}
+
+
+        // =====================================================
+        // CALCULAR INVENTARIO FINAL
+        // =====================================================
+       function calcularInventarioFinal() {
+    const inicial = Number(document.getElementById('invInicial').value) || 0;
+    const entrada = Number(document.getElementById('invEntrada').value) || 0;
+    const salida  = Number(document.getElementById('invSalida').value) || 0;
+
+    const final = inicial + entrada - salida;
+
+    document.getElementById('invFinal').value = final;
+}
+
+
+        // =====================================================
+        // CARGAR INVENTARIO ANTERIOR
+        // =====================================================
+        async function loadInventarioAnterior() {
+            const localId = parseInt(document.getElementById('invLocalId').value);
+            if (!localId) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/inventario/ultimo/${localId}`);
+                if (response.ok) {
+                    const ultimo = await response.json();
+                    if (ultimo && !ultimo.error) {
+                        document.getElementById('invInicial').value = ultimo.inv_final;
+                        calcularInventarioFinal();
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar inventario anterior:', error);
+            }
+        }
+
+        // =====================================================
+        // CARGAR LOCALES EN SELECTS
+        // =====================================================
+        function loadLocalesSelect() {
+            const selects = ['usuarioLocalId', 'invLocalId'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Seleccione un local</option>';
+                
+                // Ordenar locales por nombre
+                const localesOrdenados = [...systemData.locales].sort((a, b) => 
+                    a.nombre.localeCompare(b.nombre)
+                );
+                
+                localesOrdenados.forEach(local => {
+                    if (local.estado === 'ACTIVO') {
+                        const option = document.createElement('option');
+                        option.value = local.id;
+                        option.textContent = `${local.nombre} - ${local.ciudad}`;
+                        select.appendChild(option);
+                    }
+                });
+                
+                // Mantener el valor actual si existe
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            });
+        }
+
+        // =====================================================
+        // RENDERIZAR LOCALES
+        // =====================================================
+        function renderLocals() {
+            const container = document.getElementById('localsContainer');
+            
+            if (systemData.locales.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🏪</div>
+                        <h3>No hay locales registrados</h3>
+                        <p>Comienza agregando tu primer local</p>
+                        <button class="btn btn-primary" style="margin-top: 20px;" onclick="switchTab('add-local')">
+                            🏪 Agregar Local
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar locales por nombre
+            const localesOrdenados = [...systemData.locales].sort((a, b) => 
+                a.nombre.localeCompare(b.nombre)
+            );
+
+            container.innerHTML = '';
+            localesOrdenados.forEach(local => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = (e) => {
+                    if (!e.target.closest('.btn')) {
+                        showLocalDetails(local.id);
+                    }
+                };
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${local.nombre}</div>
+                        <div class="card-badge ${local.estado.toLowerCase()}">${local.estado}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-label">Dirección</div>
+                        <div class="card-value">${local.direccion}, ${local.ciudad}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-label">Teléfono</div>
+                        <div class="card-value">${local.telefono || 'No registrado'}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); editLocal(${local.id})">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); showDeleteModal('local', ${local.id})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // =====================================================
+        // RENDERIZAR USUARIOS
+        // =====================================================
+        function renderUsuarios() {
+            const container = document.getElementById('usuariosContainer');
+            
+            if (systemData.usuarios.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 20px;">👥</div>
+                        <h3>No hay usuarios registrados</h3>
+                        <p>Comienza agregando tu primer usuario</p>
+                        <button class="btn btn-primary" style="margin-top: 20px;" onclick="switchTab('add-usuario')">
+                            👨‍💼 Agregar Usuario
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar usuarios por nombre
+            const usuariosOrdenados = [...systemData.usuarios].sort((a, b) => 
+                a.nombre.localeCompare(b.nombre)
+            );
+
+            container.innerHTML = '';
+            usuariosOrdenados.forEach(usuario => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = (e) => {
+                    if (!e.target.closest('.btn')) {
+                        showUsuarioDetails(usuario.id);
+                    }
+                };
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${usuario.nombre} ${usuario.apellido}</div>
+                        <div class="card-badge ${usuario.cargo.toLowerCase()}">${usuario.cargo}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-label">Usuario</div>
+                        <div class="card-value">${usuario.usuario}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-label">Teléfono</div>
+                        <div class="card-value">${usuario.telefono || 'No registrado'}</div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-label">Local Asignado</div>
+                        <div class="card-value">${usuario.local_nombre || 'Sin asignar'}</div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); editUsuario(${usuario.id})">
+                            ✏️ Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); showDeleteModal('usuario', ${usuario.id})">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // =====================================================
+        // MOSTRAR DETALLES DEL LOCAL
+        // =====================================================
+        function showLocalDetails(localId) {
+            const local = systemData.locales.find(l => l.id === localId);
+            if (!local) return;
+
+            document.getElementById('detailModalTitle').textContent = '📋 Detalles del Local';
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">ID</div>
+                        <div class="detail-value">${local.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Estado</div>
+                        <div class="detail-value">
+                            <span class="card-badge ${local.estado.toLowerCase()}">${local.estado}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Nombre del Local</div>
+                        <div class="detail-value">${local.nombre}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Dirección</div>
+                        <div class="detail-value">${local.direccion}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Ciudad</div>
+                        <div class="detail-value">${local.ciudad}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Teléfono</div>
+                        <div class="detail-value">${local.telefono || 'No registrado'}</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div class="detail-label">Usuarios asignados</div>
+                    <div class="detail-value">
+                        ${systemData.usuarios.filter(u => u.local_id === localId).map(u => `${u.nombre} ${u.apellido}`).join(', ') || 'No hay usuarios asignados'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // =====================================================
+        // MOSTRAR DETALLES DEL USUARIO
+        // =====================================================
+        function showUsuarioDetails(usuarioId) {
+            const usuario = systemData.usuarios.find(u => u.id === usuarioId);
+            if (!usuario) return;
+
+            document.getElementById('detailModalTitle').textContent = '👤 Detalles del Usuario';
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">ID</div>
+                        <div class="detail-value">${usuario.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Cargo</div>
+                        <div class="detail-value">
+                            <span class="card-badge ${usuario.cargo.toLowerCase()}">${usuario.cargo}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Nombre</div>
+                        <div class="detail-value">${usuario.nombre}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Apellido</div>
+                        <div class="detail-value">${usuario.apellido}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Usuario</div>
+                        <div class="detail-value">${usuario.usuario}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Teléfono</div>
+                        <div class="detail-value">${usuario.telefono || 'No registrado'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Dirección</div>
+                        <div class="detail-value">${usuario.direccion || 'No registrada'}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Local Asignado</div>
+                        <div class="detail-value">${usuario.local_nombre || 'Sin asignar'}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        // =====================================================
+        // EDITAR LOCAL
+        // =====================================================
+        function editLocal(localId) {
+            const local = systemData.locales.find(l => l.id === localId);
+            if (!local) return;
+
+            document.getElementById('editForm').innerHTML = `
+                <div class="form-group">
+                    <label>Nombre del Local</label>
+                    <input type="text" id="editNombre" value="${local.nombre}">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="editDireccion" value="${local.direccion}">
+                </div>
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" id="editCiudad" value="${local.ciudad}">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="editTelefono" value="${local.telefono || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="editEstado">
+                        <option value="ACTIVO" ${local.estado === 'ACTIVO' ? 'selected' : ''}>Activo</option>
+                        <option value="INACTIVO" ${local.estado === 'INACTIVO' ? 'selected' : ''}>Inactivo</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-success" onclick="updateLocal(${localId})">💾 Guardar Cambios</button>
+                    <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                </div>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // =====================================================
+        // ACTUALIZAR LOCAL
+        // =====================================================
+        async function updateLocal(localId) {
+            const local = systemData.locales.find(l => l.id === localId);
+            if (!local) return;
+
+            const updatedLocal = {
+                nombre: document.getElementById('editNombre').value.trim(),
+                direccion: document.getElementById('editDireccion').value.trim(),
+                ciudad: document.getElementById('editCiudad').value.trim(),
+                telefono: document.getElementById('editTelefono').value.trim(),
+                estado: document.getElementById('editEstado').value
+            };
+
+            // Validar campos requeridos
+            if (!updatedLocal.nombre || !updatedLocal.direccion || !updatedLocal.ciudad) {
+                alert('Por favor complete todos los campos requeridos');
+                return;
+            }
+
+            try {
+                const token = getCsrfToken();
+                
+                const response = await fetch(`${API_BASE_URL}/locales/${localId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(updatedLocal)
+                });
+
+                if (response.ok) {
+                    Object.assign(local, updatedLocal);
+                    renderLocals();
+                    loadLocalesSelect();
+                    updateDashboard();
+                    closeEditModal();
+                    alert('✅ Local actualizado correctamente');
+                } else {
+                    const error = await response.json();
+                    alert(`Error al actualizar: ${error.error || 'Error desconocido'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión con el servidor');
+            }
+        }
+
+        // =====================================================
+        // EDITAR USUARIO
+        // =====================================================
+        function editUsuario(usuarioId) {
+            const usuario = systemData.usuarios.find(u => u.id === usuarioId);
+            if (!usuario) return;
+
+            let localesOptions = systemData.locales
+                .filter(l => l.estado === 'ACTIVO')
+                .map(l => `<option value="${l.id}" ${l.id === usuario.local_id ? 'selected' : ''}>${l.nombre} - ${l.ciudad}</option>`)
+                .join('');
+
+            document.getElementById('editForm').innerHTML = `
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="editNombre" value="${usuario.nombre}">
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" id="editApellido" value="${usuario.apellido}">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="editTelefono" value="${usuario.telefono || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="editDireccion" value="${usuario.direccion || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Cargo</label>
+                    <select id="editCargo">
+                        <option value="CAJERO" ${usuario.cargo === 'CAJERO' ? 'selected' : ''}>Cajero</option>
+                        <option value="ADMINISTRADOR" ${usuario.cargo === 'ADMINISTRADOR' ? 'selected' : ''}>Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Local Asignado</label>
+                    <select id="editLocalId">
+                        <option value="">Seleccione un local</option>
+                        ${localesOptions}
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-success" onclick="updateUsuario(${usuarioId})">💾 Guardar Cambios</button>
+                    <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                </div>
+            `;
+            
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // =====================================================
+        // ACTUALIZAR USUARIO
+        // =====================================================
+        async function updateUsuario(usuarioId) {
+            const usuario = systemData.usuarios.find(u => u.id === usuarioId);
+            if (!usuario) return;
+
+            const localId = parseInt(document.getElementById('editLocalId').value) || null;
+            const local = localId ? systemData.locales.find(l => l.id === localId) : null;
+
+            const updatedUsuario = {
+                nombre: document.getElementById('editNombre').value.trim(),
+                apellido: document.getElementById('editApellido').value.trim(),
+                telefono: document.getElementById('editTelefono').value.trim(),
+                direccion: document.getElementById('editDireccion').value.trim(),
+                cargo: document.getElementById('editCargo').value,
+                local_id: localId
+            };
+
+            // Validar campos requeridos
+            if (!updatedUsuario.nombre || !updatedUsuario.apellido || !updatedUsuario.cargo || !localId) {
+                alert('Por favor complete todos los campos requeridos');
+                return;
+            }
+
+            try {
+                const token = getCsrfToken();
+                
+                const response = await fetch(`${API_BASE_URL}/usuarios/${usuarioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify(updatedUsuario)
+                });
+
+                if (response.ok) {
+                    Object.assign(usuario, updatedUsuario);
+                    usuario.local_nombre = local ? local.nombre : '';
+                    renderUsuarios();
+                    updateDashboard();
+                    closeEditModal();
+                    alert('✅ Usuario actualizado correctamente');
+                } else {
+                    const error = await response.json();
+                    alert(`Error al actualizar: ${error.error || 'Error desconocido'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión con el servidor');
+            }
+        }
+
+        // =====================================================
+        // MOSTRAR MODAL DE ELIMINACIÓN
+        // =====================================================
+        function showDeleteModal(type, id) {
+            let item, message;
+            
+            if (type === 'local') {
+                item = systemData.locales.find(l => l.id === id);
+                if (!item) return;
+                
+                // Verificar si el local tiene usuarios asignados
+                const tieneUsuarios = systemData.usuarios.some(u => u.local_id === id);
+                
+                message = `¿Está seguro de eliminar el local:<br><strong>${item.nombre}</strong><br>${item.direccion}, ${item.ciudad}`;
+                
+                if (tieneUsuarios) {
+                    message += `<br><br><span style="color: #f44336;">⚠️ Advertencia: Este local tiene usuarios asignados.</span>`;
+                }
+            } else if (type === 'usuario') {
+                item = systemData.usuarios.find(u => u.id === id);
+                if (!item) return;
+                message = `¿Está seguro de eliminar el usuario:<br><strong>${item.nombre} ${item.apellido}</strong><br>Usuario: ${item.usuario}<br>Cargo: ${item.cargo}`;
+            }
+
+            document.getElementById('deleteMessage').innerHTML = `
+                ${message}<br><br>
+                <span style="color: #f44336;">⚠️ Esta acción no se puede deshacer.</span>
+            `;
+            
+            document.getElementById('deleteModal').dataset.type = type;
+            document.getElementById('deleteModal').dataset.id = id;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+
+        // =====================================================
+        // CONFIRMAR ELIMINACIÓN
+        // =====================================================
+        async function confirmDelete() {
+            const type = document.getElementById('deleteModal').dataset.type;
+            const id = parseInt(document.getElementById('deleteModal').dataset.id);
+            
+            try {
+                const endpoint = type === 'local' ? 'locales' : 'usuarios';
+                const token = getCsrfToken();
+                
+                const response = await fetch(`${API_BASE_URL}/${endpoint}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'RequestVerificationToken': token
+                    }
+                });
+
+                if (response.ok) {
+                    if (type === 'local') {
+                        systemData.locales = systemData.locales.filter(l => l.id !== id);
+                        renderLocals();
+                        loadLocalesSelect();
+                    } else if (type === 'usuario') {
+                        systemData.usuarios = systemData.usuarios.filter(u => u.id !== id);
+                        renderUsuarios();
+                    }
+                    
+                    updateDashboard();
+                    closeDeleteModal();
+                    alert('✅ Eliminado correctamente');
+                } else {
+                    const error = await response.json();
+                    alert(`Error al eliminar: ${error.error || 'Error desconocido'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión con el servidor');
+            }
+        }
+
+        // =====================================================
+        // OBTENER TOKEN CSRF
+        // =====================================================
+        function getCsrfToken() {
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            return tokenInput ? tokenInput.value : '';
+        }
+
+        // =====================================================
+        // BUSCAR LOCALES
+        // =====================================================
+        function searchLocals() {
+            const searchTerm = document.getElementById('searchLocals').value.toLowerCase();
+            const cards = document.querySelectorAll('#localsContainer .card');
+            
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const isVisible = text.includes(searchTerm);
+                card.style.display = isVisible ? 'block' : 'none';
+                if (isVisible) visibleCount++;
+            });
+            
+            // Mostrar mensaje si no hay resultados
+            const container = document.getElementById('localsContainer');
+            let noResults = container.querySelector('.no-results');
+            
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.className = 'empty-state no-results';
+                    noResults.innerHTML = `
+                        <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                        <h3>No se encontraron resultados</h3>
+                        <p>Intenta con otros términos de búsqueda</p>
+                    `;
+                    container.appendChild(noResults);
+                }
+                noResults.style.display = 'block';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // =====================================================
+        // BUSCAR USUARIOS
+        // =====================================================
+        function searchUsuarios() {
+            const searchTerm = document.getElementById('searchUsuarios').value.toLowerCase();
+            const cards = document.querySelectorAll('#usuariosContainer .card');
+            
+            let visibleCount = 0;
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const isVisible = text.includes(searchTerm);
+                card.style.display = isVisible ? 'block' : 'none';
+                if (isVisible) visibleCount++;
+            });
+            
+            // Mostrar mensaje si no hay resultados
+            const container = document.getElementById('usuariosContainer');
+            let noResults = container.querySelector('.no-results');
+            
+            if (visibleCount === 0 && cards.length > 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.className = 'empty-state no-results';
+                    noResults.innerHTML = `
+                        <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                        <h3>No se encontraron resultados</h3>
+                        <p>Intenta con otros términos de búsqueda</p>
+                    `;
+                    container.appendChild(noResults);
+                }
+                noResults.style.display = 'block';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        }
+
+        // =====================================================
+        // ACTUALIZAR DASHBOARD
+        // =====================================================
+        function updateDashboard() {
+            document.getElementById('totalLocals').textContent = systemData.locales.length;
+            document.getElementById('totalUsuarios').textContent = systemData.usuarios.length;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const totalInv = systemData.inventario
+                .filter(inv => inv.fecha === today)
+                .reduce((sum, inv) => sum + inv.inv_final, 0);
+            document.getElementById('totalInventario').textContent = totalInv.toLocaleString();
+        }
+
+        // =====================================================
+        // MOSTRAR ALERTA
+        // =====================================================
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            container.textContent = message;
+            container.className = `alert alert-${type}`;
+            container.style.display = 'block';
+            
+            // Desplazar hacia la alerta
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 5000);
+        }
+
+        // =====================================================
+        // LIMPIAR FORMULARIOS
+        // =====================================================
+        function clearUsuarioForm() {
+            document.getElementById('usuarioNombre').value = '';
+            document.getElementById('usuarioApellido').value = '';
+            document.getElementById('usuarioTelefono').value = '';
+            document.getElementById('usuarioDireccion').value = '';
+            document.getElementById('usuarioCargo').value = '';
+            document.getElementById('usuarioUser').value = '';
+            document.getElementById('usuarioPassword').value = '';
+            document.getElementById('usuarioLocalId').value = '';
+            document.getElementById('usuarioAlert').style.display = 'none';
+        }
+
+        function clearLocalForm() {
+            document.getElementById('localNombre').value = '';
+            document.getElementById('localDireccion').value = '';
+            document.getElementById('localCiudad').value = '';
+            document.getElementById('localTelefono').value = '';
+            document.getElementById('localEstado').value = 'ACTIVO';
+            document.getElementById('localAlert').style.display = 'none';
+        }
+
+        function clearInventarioForm() {
+            document.getElementById('invLocalId').value = '';
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('invFecha').value = today;
+            document.getElementById('invInicial').value = '';
+            document.getElementById('invEntrada').value = '0';
+            document.getElementById('invSalida').value = '0';
+            document.getElementById('invFinal').value = '';
+            document.getElementById('inventarioAlert').style.display = 'none';
+        }
+
+        // =====================================================
+        // CERRAR MODALES
+        // =====================================================
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+
+        // =====================================================
+        // CERRAR MODALES AL HACER CLIC FUERA
+        // =====================================================
+        window.onclick = function(event) {
+            const detailModal = document.getElementById('detailModal');
+            const editModal = document.getElementById('editModal');
+            const deleteModal = document.getElementById('deleteModal');
+            
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        }
+
+        // =====================================================
+        // INICIALIZAR AL CARGAR LA PÁGINA
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', initSystem);
+    </script>
+
+    @* Token CSRF para seguridad *@
+    @Html.AntiForgeryToken()
+</body>
+</html>

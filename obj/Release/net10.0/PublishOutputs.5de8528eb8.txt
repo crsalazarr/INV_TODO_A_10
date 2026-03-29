@@ -1,0 +1,8 @@
+C:\inetpub\MiAppPrueba\INV_TODO_A_10.exe
+C:\inetpub\MiAppPrueba\appsettings.Development.json
+C:\inetpub\MiAppPrueba\appsettings.json
+C:\inetpub\MiAppPrueba\INV_TODO_A_10.dll
+C:\inetpub\MiAppPrueba\INV_TODO_A_10.deps.json
+C:\inetpub\MiAppPrueba\INV_TODO_A_10.runtimeconfig.json
+C:\inetpub\MiAppPrueba\INV_TODO_A_10.pdb
+C:\inetpub\MiAppPrueba\MySqlConnector.dll

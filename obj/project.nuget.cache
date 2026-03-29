@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "+JIYQZ6GpBM=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\csala\\Documents\\LOS MULETOS\\INV_TODO A 10\\INV_TODO_A_10\\INV_TODO_A_10.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\csala\\.nuget\\packages\\mysqlconnector\\2.5.0\\mysqlconnector.2.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}

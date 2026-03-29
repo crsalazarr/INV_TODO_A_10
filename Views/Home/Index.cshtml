@@ -1,0 +1,256 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TODO A 10 000</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 430px;
+            width: 100%;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+    @@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px 25px;
+            text-align: center;
+        }
+
+        .login-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+        .login-header p { font-size: 14px; opacity: 0.9; }
+
+        .login-content { padding: 30px 25px; }
+        .form-group { margin-bottom: 22px; }
+
+        label { display: block; font-weight: 600; color: #555; margin-bottom: 6px; }
+
+        .input-wrapper { position: relative; }
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            border: 2px solid #e3e3e3;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,.12);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .remember-me { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .forgot-password { color: #667eea; text-decoration: none; font-weight: 600; }
+        .forgot-password:hover { text-decoration: underline; }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,.4);
+        }
+
+        .error-message {
+            background: #ffe5e5;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            max-width: 400px;
+            text-align: center;
+            animation: fadeIn .3s ease;
+        }
+
+        .modal-content h3 { margin-bottom: 10px; color: #333; }
+        .modal-content p { font-size: 14px; color: #555; margin-bottom: 20px; }
+
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+
+        .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+        .btn-close { background: #ccc; }
+        .btn-whatsapp { background: #25D366; color: white; }
+
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-header">
+        <h1>TODO A 10 000</h1>
+        <p>Sistema de Reportes Diarios</p>
+    </div>
+
+    <div class="login-content">
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form method="post" asp-action="Login" asp-controller="Account">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label>Usuario</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">👤</span>
+                    <input type="text" name="username" placeholder="Ingrese su usuario" required value="@(ViewBag.UsuarioRecordado ?? "")">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+                    <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember" @(ViewBag.UsuarioRecordado != null ? "checked" : "")>
+                    Recordarme
+                </label>
+
+                <a href="#" class="forgot-password" onclick="forgotPassword(event)">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="login-button">Iniciar Sesión</button>
+
+        </form>
+    </div>
+</div>
+
+<!-- MODAL RECUPERACIÓN -->
+<div class="modal" id="forgotModal">
+    <div class="modal-content">
+        <h3>🔑 Recuperar Contraseña</h3>
+        <p>
+            Para recuperar su contraseña debe comunicarse al número:<br>
+            <strong>📞 322 783 1470</strong><br><br>
+            También puede escribir por WhatsApp.
+        </p>
+
+        <div class="modal-buttons">
+            <button class="btn btn-close" onclick="closeModal()">Cerrar</button>
+            <a class="btn btn-whatsapp" target="_blank" href="https://wa.me/573227831470">
+                WhatsApp
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const pass = document.getElementById("password");
+        pass.type = pass.type === "password" ? "text" : "password";
+    }
+
+    function forgotPassword(e) {
+        e.preventDefault();
+        document.getElementById("forgotModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("forgotModal").style.display = "none";
+    }
+
+    function showError(msg) {
+        const div = document.getElementById("errorMessage");
+        div.innerText = msg;
+        div.style.display = "block";
+        setTimeout(() => div.style.display = "none", 4000);
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        @:showError("@TempData["ErrorMessage"]");
+    }
+</script>
+
+</body>
+</html>

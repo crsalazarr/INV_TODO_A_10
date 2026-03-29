@@ -1,0 +1,1404 @@
+@{
+    ViewData["Title"] = "Reporte Diario - Todo a 10.000";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Animaciones - deben estar al inicio */
+        @@keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @@keyframes pulse {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 6px 25px rgba(255, 193, 7, 0.3);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+            }
+        }
+
+        @@keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+            min-width: 120px;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #333;
+            text-align: right;
+            flex: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pendiente {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .status-guardado {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .gastos-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 500;
+            color: #666;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+            text-align: right;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .total-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .total-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .total-amount {
+            font-size: 32px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-save {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-clear {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(75, 85, 99, 0.3);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        /* Estilos para el resumen de ventas */
+        .ventas-summary {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #4caf50;
+        }
+
+        .ventas-summary h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .ventas-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #a5d6a7;
+        }
+
+        .ventas-row:last-child {
+            border-bottom: none;
+        }
+
+        .ventas-label {
+            font-weight: 600;
+            color: #1b5e20;
+            font-size: 14px;
+        }
+
+        .ventas-value {
+            font-weight: 700;
+            color: #1b5e20;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .ganancia-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .ganancia-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .ganancia-amount {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Estilos para alerta de inventario */
+        .inventario-alert {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        .inventario-alert h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .inventario-alert p {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .inventario-alert .btn-inventario {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #856404;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+        }
+
+        .inventario-alert .btn-inventario:hover {
+            background: linear-gradient(135deg, #e0a800 0%, #d39e00 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(224, 168, 0, 0.3);
+        }
+
+        /* Estilos para modal de inventario */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .modal-header h2 {
+            color: #667eea;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: #f1f1f1;
+            color: #ff4757;
+        }
+
+        .inventario-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .inventario-info p {
+            color: #495057;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .inventario-detalles {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .inventario-detalles h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .inventario-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .inventario-row:last-child {
+            border-bottom: none;
+        }
+
+        .inventario-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .inventario-value {
+            font-weight: 700;
+            color: #212529;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-modal-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .btn-modal-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-modal-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .btn-modal-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .modal-warning {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border: 2px solid #feb2b2;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .modal-warning p {
+            color: #c53030;
+            font-size: 13px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        @@media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .info-value {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 REPORTE DIARIO DE GASTOS</h1>
+            <div class="subtitle">TODO A 10.000</div>
+        </div>
+        
+        <div class="content">
+            <!-- Alertas generales -->
+            <div id="alertMessage" class="alert"></div>
+
+            <!-- Alerta de inventario (se mostrará si no hay inventario) -->
+            <div id="inventarioAlert" class="inventario-alert" style="display: none;">
+                <h3>⚠️ ALERTA DE INVENTARIO</h3>
+                <p>No se ha registrado inventario inicial en este local. Para poder registrar ventas, primero debe crear el inventario inicial.</p>
+                <button type="button" class="btn-inventario" onclick="mostrarModalInventario()">
+                    📋 Ver información de inventario
+                </button>
+            </div>
+            
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Resumen de Ventas -->
+            <div id="ventasSummary" class="ventas-summary" style="display: none;">
+                <h3>📊 VENTAS REGISTRADAS HOY</h3>
+                <div class="ventas-row">
+                    <span class="ventas-label">🛍️ Prendas vendidas:</span>
+                    <span class="ventas-value" id="ventas-total-items">0</span>
+                </div>
+                <div class="ventas-row">
+                    <span class="ventas-label">💰 Total recaudado:</span>
+                    <span class="ventas-value" id="ventas-total-revenue">$0</span>
+                </div>
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #a5d6a7; font-size: 12px; color: #388e3c;">
+                    ℹ️ Estas ventas se guardarán automáticamente con el reporte diario
+                </div>
+            </div>
+
+            <!-- Información del Reporte -->
+            <div class="info-card">
+                <div class="info-row">
+                    <span class="info-label">🏪 Local:</span>
+                    <span class="info-value" id="local-display">@ViewBag.Local</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">👤 Encargado:</span>
+                    <span class="info-value">@ViewBag.Nombre @ViewBag.Apellido</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Fecha:</span>
+                    <span class="info-value" id="fecha-display"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📊 Estado:</span>
+                    <span class="info-value">
+                        <span id="estado-reporte" class="status-badge status-pendiente">Pendiente</span>
+                    </span>
+                </div>
+                <!-- Información de inventario -->
+                <div class="info-row" id="inventarioInfoRow" style="display: none;">
+                    <span class="info-label">📦 Inventario:</span>
+                    <span class="info-value">
+                        <span id="inventario-status" class="status-badge status-guardado">Disponible</span>
+                        <span id="inventario-detalle" style="font-size: 11px; color: #666; margin-left: 5px;"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Formulario de Gastos -->
+            <form id="reporteForm">
+                <div class="gastos-section">
+                    <h2 class="section-title">💰 Gastos del Día</h2>
+                    
+                    <div class="input-group">
+                        <label class="input-label">💵 Nómina</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="nomina" name="nomina" 
+                                   placeholder="0" min="0" step="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">🏢 Arriendo</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="arriendo" name="arriendo" 
+                                   placeholder="0" min="0" step="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">🛍️ Bolsa</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="bolsa" name="bolsa" 
+                                   placeholder="0" min="0" step="1000">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">📝 Otros Gastos</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="otros" name="otros" 
+                                   placeholder="0" min="0" step="1000">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">💳 Transferencias</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="transferencias" name="transferencias" 
+                                   placeholder="0" min="0" step="1000">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Gastos -->
+                <div class="total-card">
+                    <span class="total-label">🎯 TOTAL GASTOS</span>
+                    <span class="total-amount" id="totalGastos">$0</span>
+                </div>
+
+                <!-- Resumen de Ganancia -->
+                <div id="gananciaSummary" class="ganancia-card" style="display: none;">
+                    <div class="ganancia-label">📈 GANANCIA NETA ESTIMADA</div>
+                    <div class="ganancia-amount" id="ganancia-neta">$0</div>
+                </div>
+
+                <!-- Botones -->
+                <div class="button-group">
+                    <button type="button" class="btn btn-back" onclick="volverVentas()">
+                        ⬅️ Volver a Ventas
+                    </button>
+                    <button type="button" class="btn btn-save" onclick="guardarReporte()" id="btnGuardar">
+                        💾 Guardar Todo
+                    </button>
+                    <button type="button" class="btn btn-clear" onclick="limpiarFormulario()">
+                        🗑️ Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de información de inventario -->
+    <div id="inventarioModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📦 Información de Inventario</h2>
+                <button class="close-modal" onclick="cerrarModalInventario()">&times;</button>
+            </div>
+            
+            <div class="inventario-info">
+                <p id="modalInventarioTexto">
+                    Cargando información de inventario...
+                </p>
+                
+                <div id="inventarioDetalles" style="display: none;" class="inventario-detalles">
+                    <h4>📊 Último registro de inventario:</h4>
+                    <div class="inventario-row">
+                        <span class="inventario-label">Fecha:</span>
+                        <span class="inventario-value" id="modal-fecha"></span>
+                    </div>
+                    <div class="inventario-row">
+                        <span class="inventario-label">Inventario Inicial:</span>
+                        <span class="inventario-value" id="modal-inicial"></span>
+                    </div>
+                    <div class="inventario-row">
+                        <span class="inventario-label">Entradas:</span>
+                        <span class="inventario-value" id="modal-entradas"></span>
+                    </div>
+                    <div class="inventario-row">
+                        <span class="inventario-label">Salidas:</span>
+                        <span class="inventario-value" id="modal-salidas"></span>
+                    </div>
+                    <div class="inventario-row">
+                        <span class="inventario-label">Inventario Final:</span>
+                        <span class="inventario-value" id="modal-final"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-warning">
+                <p>⚠️ <strong>Importante:</strong> No puede registrar salidas de mercancía (ventas) sin tener inventario inicial registrado.</p>
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-modal-primary" onclick="irAInventario()">
+                    📋 Ir a Gestión de Inventario
+                </button>
+                
+                <button type="button" class="btn-modal-secondary" onclick="cerrarModalInventario()">
+                    ✕ Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let datosGuardados = false;
+        let totalGastosActual = 0;
+        let ventasDelDia = {
+            totalItems: 0,
+            totalRevenue: 0,
+            salesCount: 0
+        };
+        let tieneInventarioInicial = false;
+        let informacionInventario = null;
+
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            const opciones = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // Formatear número como moneda
+        function formatCurrency(value) {
+            return '$' + value.toLocaleString('es-CO', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+
+        // Obtener ventas desde localStorage
+        function obtenerVentasDelDia() {
+            try {
+                const saved = localStorage.getItem('todo10000_simple');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    return {
+                        totalItems: parsed.totalItems || 0,
+                        totalRevenue: parsed.totalRevenue || 0,
+                        salesCount: parsed.salesCount || 0
+                    };
+                }
+            } catch (e) {
+                console.error('Error al leer ventas:', e);
+            }
+            return { totalItems: 0, totalRevenue: 0, salesCount: 0 };
+        }
+
+        // Verificar estado del inventario
+        async function verificarInventarioInicial() {
+            try {
+                mostrarLoading(true);
+                
+                const response = await fetch('/Reportes/VerificarInventarioInicial');
+                const result = await response.json();
+                
+                mostrarLoading(false);
+                
+                if (result.success) {
+                    tieneInventarioInicial = result.tieneInventario;
+                    informacionInventario = result.inventario || null;
+                    
+                    // Actualizar UI según el estado del inventario
+                    actualizarUIInventario();
+                    
+                    return tieneInventarioInicial;
+                } else {
+                    console.error('Error al verificar inventario:', result.message);
+                    return false;
+                }
+            } catch (error) {
+                mostrarLoading(false);
+                console.error('Error al verificar inventario:', error);
+                return false;
+            }
+        }
+
+        // Actualizar UI según el estado del inventario
+        function actualizarUIInventario() {
+            const inventarioAlert = document.getElementById('inventarioAlert');
+            const inventarioInfoRow = document.getElementById('inventarioInfoRow');
+            const btnGuardar = document.getElementById('btnGuardar');
+            
+            if (tieneInventarioInicial && informacionInventario) {
+                // Hay inventario - ocultar alerta, mostrar info
+                inventarioAlert.style.display = 'none';
+                inventarioInfoRow.style.display = 'flex';
+                
+                // Mostrar información detallada del inventario
+                const fecha = new Date(informacionInventario.fecha);
+                const fechaFormateada = fecha.toLocaleDateString('es-ES');
+                const inventarioFinal = informacionInventario.inv_final;
+                
+                let detalle = `${inventarioFinal} unidades`;
+                if (inventarioFinal < 50) {
+                    detalle += ' ⚠️ Bajo stock';
+                }
+                detalle += ` (${fechaFormateada})`;
+                
+                document.getElementById('inventario-detalle').textContent = detalle;
+                
+                // Actualizar color según stock
+                if (inventarioFinal < 20) {
+                    document.getElementById('inventario-status').className = "status-badge status-pendiente";
+                    document.getElementById('inventario-status').textContent = "Bajo stock";
+                } else if (inventarioFinal < 50) {
+                    document.getElementById('inventario-status').className = "status-badge";
+                    document.getElementById('inventario-status').style.background = '#fef3c7';
+                    document.getElementById('inventario-status').style.color = '#92400e';
+                    document.getElementById('inventario-status').textContent = "Atención";
+                }
+                
+                // Habilitar botón de guardar
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '💾 Guardar Todo';
+                btnGuardar.title = '';
+            } else {
+                // No hay inventario - mostrar alerta
+                inventarioAlert.style.display = 'block';
+                inventarioInfoRow.style.display = 'none';
+                
+                // Deshabilitar botón de guardar si hay ventas
+                if (ventasDelDia.totalItems > 0) {
+                    btnGuardar.disabled = true;
+                    btnGuardar.innerHTML = '❌ Verificar Inventario';
+                    btnGuardar.title = 'No puede guardar ventas sin inventario inicial';
+                    btnGuardar.style.background = '#ef4444';
+                    btnGuardar.style.opacity = '0.7';
+                } else {
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '💾 Guardar Todo';
+                    btnGuardar.title = '';
+                    btnGuardar.style.background = '';
+                    btnGuardar.style.opacity = '';
+                }
+            }
+        }
+
+        // Mostrar resumen de ventas
+        function mostrarResumenVentas() {
+            ventasDelDia = obtenerVentasDelDia();
+            
+            if (ventasDelDia.totalItems > 0) {
+                document.getElementById('ventasSummary').style.display = 'block';
+                document.getElementById('ventas-total-items').textContent = ventasDelDia.totalItems;
+                document.getElementById('ventas-total-revenue').textContent = formatCurrency(ventasDelDia.totalRevenue);
+                
+                // Mostrar ganancia estimada
+                document.getElementById('gananciaSummary').style.display = 'block';
+                calcularGananciaNeta();
+                
+                // Si hay ventas pero no hay inventario, mostrar advertencia
+                if (!tieneInventarioInicial) {
+                    mostrarAlerta(
+                        `⚠️ Se encontraron ${ventasDelDia.totalItems} ventas, pero no puede guardarlas porque no hay inventario inicial. ` +
+                        `Primero debe registrar el inventario inicial en la sección correspondiente.`,
+                        'error'
+                    );
+                } else {
+                    mostrarAlerta(
+                        `✅ Se encontraron ${ventasDelDia.totalItems} ventas registradas hoy por ${formatCurrency(ventasDelDia.totalRevenue)}. ` +
+                        `Estas se guardarán automáticamente con el reporte diario.`,
+                        'info'
+                    );
+                }
+            } else {
+                document.getElementById('ventasSummary').style.display = 'none';
+                document.getElementById('gananciaSummary').style.display = 'none';
+            }
+        }
+
+        // Calcular total de gastos
+        function calcularTotalGastos() {
+            const nomina = parseFloat(document.getElementById('nomina').value) || 0;
+            const arriendo = parseFloat(document.getElementById('arriendo').value) || 0;
+            const bolsa = parseFloat(document.getElementById('bolsa').value) || 0;
+            const otros = parseFloat(document.getElementById('otros').value) || 0;
+            const transferencias = parseFloat(document.getElementById('transferencias').value) || 0;
+            
+            totalGastosActual = nomina + arriendo + bolsa + otros + transferencias;
+            document.getElementById('totalGastos').textContent = formatCurrency(totalGastosActual);
+            
+            // Actualizar estado visual
+            const estadoElement = document.getElementById('estado-reporte');
+            if (totalGastosActual > 0 || ventasDelDia.totalItems > 0) {
+                estadoElement.textContent = "Con datos";
+                estadoElement.className = "status-badge status-guardado";
+            } else {
+                estadoElement.textContent = "Pendiente";
+                estadoElement.className = "status-badge status-pendiente";
+            }
+            
+            // Calcular ganancia neta
+            calcularGananciaNeta();
+        }
+
+        // Calcular ganancia neta
+        function calcularGananciaNeta() {
+            const totalVentas = ventasDelDia.totalRevenue;
+            const gananciaNeta = totalVentas - totalGastosActual;
+            document.getElementById('ganancia-neta').textContent = formatCurrency(gananciaNeta);
+        }
+
+        // Mostrar alerta
+        function mostrarAlerta(mensaje, tipo) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.innerHTML = mensaje;
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.style.display = 'block';
+
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Mostrar/ocultar loading
+        function mostrarLoading(mostrar) {
+            document.getElementById('loading').style.display = mostrar ? 'block' : 'none';
+        }
+
+        // Cargar datos existentes desde el servidor
+        async function cargarDatosExistente() {
+            try {
+                mostrarLoading(true);
+                
+                const response = await fetch('/Reportes/ObtenerReporteHoy');
+                const result = await response.json();
+                
+                mostrarLoading(false);
+                
+                if (result.success && result.data) {
+                    const datos = result.data;
+                    
+                    // Llenar campos con datos del modelo
+                    document.getElementById('nomina').value = datos.nomina || '';
+                    document.getElementById('arriendo').value = datos.arriendo || '';
+                    document.getElementById('bolsa').value = datos.bolsa || '';
+                    document.getElementById('otros').value = datos.otros || '';
+                    document.getElementById('transferencias').value = datos.transferencias || '';
+                    
+                    // Recalcular total
+                    calcularTotalGastos();
+                    
+                    // Marcar como datos cargados
+                    datosGuardados = true;
+                    
+                    if (datos.nomina > 0 || datos.arriendo > 0 || datos.bolsa > 0 || datos.otros > 0 || datos.transferencias > 0) {
+                        mostrarAlerta('📋 Se cargaron los gastos registrados para hoy', 'info');
+                    }
+                }
+            } catch (error) {
+                mostrarLoading(false);
+                console.log('Error al cargar datos:', error);
+            }
+        }
+
+        // Guardar reporte con validación de inventario
+        async function guardarReporte() {
+            // Validar inventario si hay ventas
+            if (ventasDelDia.totalItems > 0 && !tieneInventarioInicial) {
+                mostrarAlerta(
+                    '❌ No puede guardar ventas sin inventario inicial. ' +
+                    'Por favor, registre primero el inventario inicial en la sección correspondiente.',
+                    'error'
+                );
+                mostrarModalInventario();
+                return;
+            }
+
+            const nomina = parseFloat(document.getElementById('nomina').value) || 0;
+            const arriendo = parseFloat(document.getElementById('arriendo').value) || 0;
+            const bolsa = parseFloat(document.getElementById('bolsa').value) || 0;
+            const otros = parseFloat(document.getElementById('otros').value) || 0;
+            const transferencias = parseFloat(document.getElementById('transferencias').value) || 0;
+            
+            const totalGastos = nomina + arriendo + bolsa + otros + transferencias;
+            const totalVentas = ventasDelDia.totalItems;
+            const totalRecaudado = ventasDelDia.totalRevenue;
+
+            // Validación: Si no hay ventas ni gastos
+            if (totalGastos === 0 && totalVentas === 0) {
+                const confirmarVacio = confirm('⚠️ No hay ventas ni gastos registrados. ¿Desea guardar un reporte vacío?');
+                if (!confirmarVacio) return;
+            }
+
+            // Mostrar resumen para confirmación
+            let mensajeConfirmacion = `📋 ¿Desea guardar el siguiente reporte?\n\n`;
+            
+            if (totalVentas > 0) {
+                mensajeConfirmacion += `📊 VENTAS DEL DÍA:\n`;
+                mensajeConfirmacion += `   • Prendas vendidas: ${totalVentas}\n`;
+                mensajeConfirmacion += `   • Total recaudado: ${formatCurrency(totalRecaudado)}\n\n`;
+            }
+            
+            mensajeConfirmacion += `💰 GASTOS DEL DÍA:\n`;
+            if (nomina > 0) mensajeConfirmacion += `   • Nómina: ${formatCurrency(nomina)}\n`;
+            if (arriendo > 0) mensajeConfirmacion += `   • Arriendo: ${formatCurrency(arriendo)}\n`;
+            if (bolsa > 0) mensajeConfirmacion += `   • Bolsa: ${formatCurrency(bolsa)}\n`;
+            if (otros > 0) mensajeConfirmacion += `   • Otros: ${formatCurrency(otros)}\n`;
+            if (transferencias > 0) mensajeConfirmacion += `   • Transferencias: ${formatCurrency(transferencias)}\n`;
+            if (totalGastos === 0) mensajeConfirmacion += `   • Sin gastos registrados\n`;
+            
+            mensajeConfirmacion += `\n🎯 TOTAL GASTOS: ${formatCurrency(totalGastos)}\n`;
+            
+            if (totalVentas > 0) {
+                const gananciaNeta = totalRecaudado - totalGastos;
+                mensajeConfirmacion += `📈 GANANCIA NETA: ${formatCurrency(gananciaNeta)}`;
+            }
+
+            const confirmacion = confirm(mensajeConfirmacion);
+            if (!confirmacion) return;
+
+            try {
+                // Preparar datos incluyendo ventas
+                const formData = new FormData();
+                formData.append('nomina', nomina);
+                formData.append('arriendo', arriendo);
+                formData.append('bolsa', bolsa);
+                formData.append('otros', otros);
+                formData.append('transferencias', transferencias);
+                formData.append('totalVentas', totalVentas);
+                formData.append('totalRecaudado', totalRecaudado);
+
+                // Token antiforgery
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (token) {
+                    formData.append('__RequestVerificationToken', token);
+                }
+
+                mostrarLoading(true);
+
+                // Enviar al servidor
+                const response = await fetch('/Reportes/GuardarReporteDiario', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                mostrarLoading(false);
+
+                if (result.success) {
+                    mostrarAlerta(result.message, 'success');
+                    datosGuardados = true;
+                    
+                    // Actualizar estado visual
+                    document.getElementById('estado-reporte').textContent = "Guardado";
+                    document.getElementById('estado-reporte').className = "status-badge status-guardado";
+                    
+                    // Limpiar localStorage si el servidor lo indica
+                    if (result.clearLocalStorage) {
+                        try {
+                            localStorage.removeItem('todo10000_simple');
+                            console.log('LocalStorage limpiado después de guardar reporte');
+                        } catch (e) {
+                            console.error('Error al limpiar localStorage:', e);
+                        }
+                    }
+                    
+                    // Mostrar resumen final
+                    let mensajeFinal = `✅ Reporte guardado exitosamente\n\n`;
+                    
+                    if (totalVentas > 0) {
+                        mensajeFinal += `📊 Ventas registradas: ${totalVentas} prendas\n`;
+                        mensajeFinal += `💰 Total recaudado: ${formatCurrency(totalRecaudado)}\n`;
+                    }
+                    
+                    mensajeFinal += `📝 Gastos: ${formatCurrency(totalGastos)}\n`;
+                    
+                    if (totalVentas > 0) {
+                        const gananciaNeta = totalRecaudado - totalGastos;
+                        mensajeFinal += `📈 Ganancia neta: ${formatCurrency(gananciaNeta)}`;
+                    }
+                    
+                    mostrarAlerta(mensajeFinal, 'success');
+                    
+                    // Redirigir después de 3 segundos
+                    setTimeout(() => {
+                        window.location.href = '/Ventas/VentaPrendas';
+                    }, 3000);
+                } else {
+                    // Si el error es específico de inventario, mostrar modal
+                    if (result.bloqueado) {
+                        mostrarAlerta(result.message, 'error');
+                        mostrarModalInventario();
+                    } else {
+                        mostrarAlerta(result.message, 'error');
+                    }
+                }
+            } catch (error) {
+                mostrarLoading(false);
+                mostrarAlerta('❌ Error al guardar: ' + error.message, 'error');
+                console.error('Error:', error);
+            }
+        }
+
+        // Funciones para el modal de inventario
+        function mostrarModalInventario() {
+            const modal = document.getElementById('inventarioModal');
+            const modalTexto = document.getElementById('modalInventarioTexto');
+            const detallesDiv = document.getElementById('inventarioDetalles');
+            
+            if (tieneInventarioInicial && informacionInventario) {
+                // Mostrar información del inventario existente
+                modalTexto.innerHTML = `
+                    <strong>✅ Inventario disponible</strong><br>
+                    Este local ya tiene inventario inicial registrado.
+                    Puede proceder a guardar las ventas.
+                `;
+                
+                detallesDiv.style.display = 'block';
+                
+                const fecha = new Date(informacionInventario.fecha);
+                document.getElementById('modal-fecha').textContent = fecha.toLocaleDateString('es-ES');
+                document.getElementById('modal-inicial').textContent = informacionInventario.inv_inicial;
+                document.getElementById('modal-entradas').textContent = informacionInventario.entrada;
+                document.getElementById('modal-salidas').textContent = informacionInventario.salida;
+                document.getElementById('modal-final').textContent = informacionInventario.inv_final;
+            } else {
+                // Mostrar advertencia de que no hay inventario
+                modalTexto.innerHTML = `
+                    <strong>⚠️ No hay inventario inicial</strong><br><br>
+                    Este local no tiene inventario inicial registrado.<br>
+                    Debe registrar el inventario inicial antes de poder registrar ventas.
+                `;
+                
+                detallesDiv.style.display = 'none';
+            }
+            
+            modal.style.display = 'flex';
+            
+            // Evitar scroll del fondo
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarModalInventario() {
+            const modal = document.getElementById('inventarioModal');
+            modal.style.display = 'none';
+            
+            // Restaurar scroll
+            document.body.style.overflow = '';
+        }
+
+        function irAInventario() {
+            // Redirigir a la página de gestión de inventario
+            // Ajusta esta URL según la estructura de tu aplicación
+            window.location.href = '/Inventario/RegistrarInventario';
+        }
+
+        // Limpiar formulario
+        function limpiarFormulario() {
+            if ((totalGastosActual > 0 || ventasDelDia.totalItems > 0) && !datosGuardados) {
+                const confirmar = confirm('⚠️ ¿Está seguro de que desea limpiar todos los campos? Se perderán los datos no guardados.');
+                if (!confirmar) return;
+            }
+
+            document.getElementById('nomina').value = '';
+            document.getElementById('arriendo').value = '';
+            document.getElementById('bolsa').value = '';
+            document.getElementById('otros').value = '';
+            document.getElementById('transferencias').value = '';
+            
+            datosGuardados = false;
+            calcularTotalGastos();
+            
+            mostrarAlerta('✅ Formulario limpiado', 'success');
+        }
+
+        // Volver a ventas
+        function volverVentas() {
+            if ((totalGastosActual > 0 || ventasDelDia.totalItems > 0) && !datosGuardados) {
+                const confirmar = confirm('⚠️ Tiene datos sin guardar. ¿Está seguro de que desea volver sin guardar?');
+                if (!confirmar) return;
+            }
+            
+            window.location.href = '/Ventas/VentaPrendas';
+        }
+
+        // Inicializar aplicación
+        async function inicializarApp() {
+            // Establecer fecha
+            document.getElementById('fecha-display').textContent = formatearFecha(new Date());
+            
+            // Verificar estado del inventario primero
+            await verificarInventarioInicial();
+            
+            // Mostrar ventas del día
+            mostrarResumenVentas();
+            
+            // Event listeners para campos
+            const campos = ['nomina', 'arriendo', 'bolsa', 'otros', 'transferencias'];
+            campos.forEach(id => {
+                const campo = document.getElementById(id);
+                campo.addEventListener('input', calcularTotalGastos);
+                campo.addEventListener('change', calcularTotalGastos);
+                campo.addEventListener('click', function() { this.select(); });
+            });
+            
+            // Cargar datos existentes
+            cargarDatosExistente();
+            
+            // Calcular total inicial
+            calcularTotalGastos();
+            
+            // Atajos de teclado
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+S para guardar
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    guardarReporte();
+                }
+                // Escape para limpiar
+                if (e.key === 'Escape') {
+                    limpiarFormulario();
+                }
+                // Escape para cerrar modal
+                if (e.key === 'Escape' && document.getElementById('inventarioModal').style.display === 'flex') {
+                    cerrarModalInventario();
+                }
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('inventarioModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    cerrarModalInventario();
+                }
+            });
+        }
+
+        // Iniciar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', inicializarApp);
+
+        // Prevenir pérdida de datos
+        window.addEventListener('beforeunload', function(e) {
+            if ((totalGastosActual > 0 || ventasDelDia.totalItems > 0) && !datosGuardados) {
+                e.preventDefault();
+                e.returnValue = '⚠️ Tiene datos sin guardar (ventas y/o gastos). ¿Está seguro de que desea salir?';
+            }
+        });
+    </script>
+
+    @* Token antiforgery *@
+    @Html.AntiForgeryToken()
+
+</body>
+</html>
